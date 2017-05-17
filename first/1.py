@@ -32,7 +32,6 @@ class Flights:
 
 class Runway(threading.Thread):
     name = None;
-    verrou = threading.Lock()
     
     def __init__(self,n):
         threading.Thread.__init__(self)
