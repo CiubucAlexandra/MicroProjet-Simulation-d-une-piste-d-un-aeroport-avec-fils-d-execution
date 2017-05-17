@@ -11,8 +11,8 @@ import sys, os, threading
 import multiprocessing
 import random
 from multiprocessing import Queue
-q  = Queue ()
-qAttente = Queue()
+q  = list()
+qAttente = list()
 i = 0
 
 class Flights:
@@ -40,63 +40,53 @@ class Runway(threading.Thread):
         print n + " este pregatita."
  
     def add(self,f):
-        q.put(f);
+        q.append(f);
         print "Zborul " + f.fName + " este pregatit."
 
     def getRunway(self):
         return self.name;
 
     def run(self):
-        self.verrou.acquire()
         try: 
-            while q.qsize() != 0:
-                if (q.qsize() > 0):
-                    f = q.get()
-                    temps = f.getTemps()
-                    #pour a ateriza il faut justement 5 minutes
-                    if(temps > 5):
-                        qAttente.put(f)
-                        #print temps
-                        try:
-                            Thread.currentThread()
-                            Thread.sleep(100);
-                            print "food"
-                        except: 
-                            pass
-                    elif temps < 5:
-                        #print temps
-                        print self.getRunway() + ": " + f.getName() + " a aterizat."
-
-            while qAttente.qsize() != 0:
-                t = qAttente.get()
+            while len(q) != 0:
+                f = q.pop()
+                temps = f.getTemps()
+                #print temps
+                #pour a ateriza il faut justement 5 minutes
+                if(temps > 5):
+                    qAttente.append(f)
+                    #print f.fName
+                else:
+                    print self.getRunway() + ": " + f.getName() + " a aterizat."
+    
+            while len(qAttente) != 0:
+                t = qAttente.pop()
                 print self.getRunway() + ": " + t.getName() + " a parasit pista."
-
+                
         finally:
-            self.verrou.release()
+            pass
 
 
 def main():
-    #tThread = []
     print "Avioanele care aterizeaza au o prioritate mai mare fata de cele care parasesc aeroportul"
-    zbor1 = Flights("z1",round(random.random() * 10))
-    zbor2 = Flights("z2",round(random.random() * 10))
-    zbor3 = Flights("z3",round(random.random() * 10))
-    zbor4 = Flights("z4",round(random.random() * 10))
-    zbor5 = Flights("z5",round(random.random() * 10))
-    zbor6 = Flights("z6",round(random.random() * 10))
-    zbor7 = Flights("z7",round(random.random() * 10))
-    
-    pista1 = Runway("Pista BV-128")
-    pista1.add(zbor1)
-    pista1.add(zbor2)
-    pista1.add(zbor3)
-    pista1.add(zbor4)
-    pista1.add(zbor5)
-    pista1.add(zbor6)
-    pista1.add(zbor7)
-    
-    pista1.run()
+    pista = Runway("Pista BV-128")
+    pista.start()
+    j = 0
+#deci la un moment dat apare un vol urgent
+    for j in range(10):
+        nume = "Z" + str(j)
+        zbor = Flights(nume, random.randint(1,10))
+        if j ==5 :
+            nume = "ZBOR URGENT"
+            zbor = Flights(nume, 4)
+            #pista.add(zbor)
+            
+        print "Zborul "+ nume + " are timpul " + str(zbor.getTemps()) + " minute"
+        pista.add(zbor)
+        pista.join(10)
+        pista.run()
+        print
+        j = j+1
+        
 
 main()
-
-
