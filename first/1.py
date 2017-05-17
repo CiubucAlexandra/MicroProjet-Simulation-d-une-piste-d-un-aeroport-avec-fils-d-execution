@@ -74,15 +74,20 @@ def main():
     j = 0
 #deci la un moment dat apare un vol urgent
     for j in range(10):
-        nume = "Z" + str(j)
-        zbor = Flights(nume, random.randint(1,10))
-        if j ==5 :
-            nume = "ZBOR URGENT"
-            zbor = Flights(nume, 4)
-            #pista.add(zbor)
-            
-        print "Zborul "+ nume + " are timpul " + str(zbor.getTemps()) + " minute"
-        pista.add(zbor)
+        if j == 5 :
+            print """Flight YR-CA589:
+                    MAYDAY MAYDAY MAYDAY. Avem o problema!
+                    Cerem permisiunea de a ateriza!"""
+            zbor = Flights("YR-CA589", 4)
+            pista.add(zbor)
+            print "Zborul "+ zbor.getName() + " are timpul " + str(zbor.getTemps()) + " minute"
+        else:
+            nume = "Z" + str(j)    
+            zbor = Flights(nume, random.randint(1,10))
+            pista.add(zbor)
+            print "Zborul "+ nume + " are timpul " + str(zbor.getTemps()) + " minute"
+
+        
         pista.join(10)
         pista.run()
         print
